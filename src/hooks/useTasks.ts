@@ -1,41 +1,29 @@
 import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  fetchTasks,
-  updateTask,
-  deleteTask,
-  createTask,
-} from "../api/tasks";
+import type { Task } from "../api/tasks"; // ✅ type-only import
+import { fetchTasks, createTask, updateTask, deleteTask } from "../api/tasks";
 import { socket } from "../socket";
 
 /* ================= FETCH TASKS ================= */
-
 export const useTasks = () => {
   const queryClient = useQueryClient();
 
-  const query = useQuery({
+  const query = useQuery<Task[], Error>({
     queryKey: ["tasks"],
     queryFn: fetchTasks,
   });
 
-  // 🔄 Real-time sync
   useEffect(() => {
-    socket.on("taskCreated", () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-    });
+    const handleUpdate = () => queryClient.invalidateQueries(["tasks"]);
 
-    socket.on("taskUpdated", () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-    });
-
-    socket.on("taskDeleted", () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-    });
+    socket.on("taskCreated", handleUpdate);
+    socket.on("taskUpdated", handleUpdate);
+    socket.on("taskDeleted", handleUpdate);
 
     return () => {
-      socket.off("taskCreated");
-      socket.off("taskUpdated");
-      socket.off("taskDeleted");
+      socket.off("taskCreated", handleUpdate);
+      socket.off("taskUpdated", handleUpdate);
+      socket.off("taskDeleted", handleUpdate);
     };
   }, [queryClient]);
 
@@ -43,83 +31,65 @@ export const useTasks = () => {
 };
 
 /* ================= CREATE TASK ================= */
-
 export const useCreateTask = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<Task, unknown, Partial<Task>>({
     mutationFn: createTask,
-
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-    },
+    onSuccess: () => queryClient.invalidateQueries(["tasks"]),
   });
 };
 
 /* ================= UPDATE TASK ================= */
-
 export const useUpdateTask = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: ({ id, data }: any) => updateTask(id, data),
+  return useMutation<Task, unknown, { id: string; data: Partial<Task> }>({
+    mutationFn: ({ id, data }) => updateTask(id, data),
 
-    // ⚡ Optimistic update
     onMutate: async ({ id, data }) => {
-      await queryClient.cancelQueries({ queryKey: ["tasks"] });
+      await queryClient.cancelQueries(["tasks"]);
 
-      const previous = queryClient.getQueryData<any[]>(["tasks"]);
+      const previous = queryClient.getQueryData<Task[]>(["tasks"]);
 
-      queryClient.setQueryData(["tasks"], (old: any[]) =>
-        old?.map((task) =>
-          task._id === id ? { ...task, ...data } : task
-        )
+      queryClient.setQueryData<Task[]>(["tasks"], (old = []) =>
+        old.map((task) => (task._id === id ? { ...task, ...data } : task))
       );
 
       return { previous };
     },
 
     onError: (_err, _vars, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(["tasks"], context.previous);
-      }
+      if (context?.previous) queryClient.setQueryData<Task[]>(["tasks"], context.previous);
     },
 
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-    },
+    onSettled: () => queryClient.invalidateQueries(["tasks"]),
   });
 };
 
 /* ================= DELETE TASK ================= */
-
 export const useDeleteTask = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<void, unknown, string>({
     mutationFn: deleteTask,
 
-    // ⚡ Optimistic delete
     onMutate: async (id: string) => {
-      await queryClient.cancelQueries({ queryKey: ["tasks"] });
+      await queryClient.cancelQueries(["tasks"]);
 
-      const previous = queryClient.getQueryData<any[]>(["tasks"]);
+      const previous = queryClient.getQueryData<Task[]>(["tasks"]);
 
-      queryClient.setQueryData(["tasks"], (old: any[]) =>
-        old?.filter((t) => t._id !== id)
+      queryClient.setQueryData<Task[]>(["tasks"], (old = []) =>
+        old.filter((task) => task._id !== id)
       );
 
       return { previous };
     },
 
     onError: (_err, _id, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(["tasks"], context.previous);
-      }
+      if (context?.previous) queryClient.setQueryData<Task[]>(["tasks"], context.previous);
     },
 
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-    },
+    onSettled: () => queryClient.invalidateQueries(["tasks"]),
   });
 };

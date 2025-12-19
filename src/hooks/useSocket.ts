@@ -1,19 +1,24 @@
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
-let socket: Socket;
-
-export const useSocket = () => {
+export const useSocket = (): Socket | null => {
+  const [socket, setSocket] = useState<Socket | null>(null);
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
-    socket = io("http://localhost:5000", { withCredentials: true });
+    const s: Socket = io("https://collaborative-task-manager-backend-hmdk.onrender.com", {
+      withCredentials: true,
+      transports: ["websocket", "polling"],
+    });
 
-    socket.on("connect", () => setConnected(true));
-    socket.on("disconnect", () => setConnected(false));
+    setSocket(s);
+
+    s.on("connect", () => setConnected(true));
+    s.on("disconnect", () => setConnected(false));
 
     return () => {
-      socket.disconnect();
+      s.disconnect();
+      setSocket(null);
     };
   }, []);
 

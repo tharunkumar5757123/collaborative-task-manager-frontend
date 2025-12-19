@@ -1,9 +1,12 @@
 import { z } from "zod";
 
 export const taskSchema = z.object({
-  title: z.string().min(1).max(100),
+  title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
-  dueDate: z.string(),
+
+  // ✅ MUST be string (HTML input gives string)
+  dueDate: z.string().min(1, "Due date is required"),
+
   priority: z.enum(["Low", "Medium", "High", "Urgent"]),
-  assignedToId: z.string().optional(),
+  assignedToId: z.string().min(1, "Assigned user is required"),
 });
