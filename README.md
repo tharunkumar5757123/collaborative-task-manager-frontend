@@ -1,73 +1,142 @@
-# React + TypeScript + Vite
+🧑‍💻 Collaborative Task Manager
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Full-Stack Engineering Assessment
 
-Currently, two official plugins are available:
+A production-ready collaborative task management application with real-time updates, secure authentication, and a clean scalable architecture.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+🚀 Live Demo
 
-## React Compiler
+Frontend:
+👉 https://collaborative-task-manager-frontend.onrender.com
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Backend API:
+👉 https://collaborative-task-manager-backend-hmdk.onrender.com
 
-## Expanding the ESLint configuration
+📦 Tech Stack
+Frontend
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+React + Vite
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+TypeScript
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Tailwind CSS
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+React Query (Server state management)
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+React Hook Form + Zod (Forms & validation)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Socket.io Client
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Backend
+
+Node.js + Express
+
+TypeScript
+
+MongoDB (chosen for flexible schema & fast iteration)
+
+Mongoose ODM
+
+JWT Authentication (HttpOnly Cookies)
+
+Socket.io
+
+Deployment
+
+Frontend: Render
+
+Backend: Render
+
+Database: MongoDB Atlas
+
+🧠 Architecture Overview
+
+The backend follows a clean layered architecture:
+
+Controllers → Services → Models (Mongoose)
+
+
+Controllers: Handle HTTP requests/responses
+
+Services: Business logic (task creation, updates, validation)
+
+Models: MongoDB schemas
+
+DTO Validation: Zod schemas validate incoming requests
+
+Sockets: Real-time events emitted from services/controllers
+
+Frontend uses React Query for:
+
+Caching
+
+Auto refetching
+
+Optimistic updates
+
+🔐 Authentication & Authorization
+
+JWT-based authentication
+
+Tokens stored in HttpOnly cookies
+
+Protected routes via middleware
+
+Task ownership enforced (only creators can update/delete)
+
+✅ Features Implemented
+🧑 User Management
+
+User registration & login
+
+Secure password hashing
+
+Profile access
+
+📋 Task Management (CRUD)
+
+Each task includes:
+
+title (max 100 chars)
+
+description
+
+dueDate
+
+priority (Low, Medium, High, Urgent)
+
+status (To Do, In Progress, Review, Completed)
+
+creatorId
+
+assignedToId
+
+⚡ Real-Time Collaboration (Socket.io)
+
+Live task updates across users
+
+Instant notification when task is assigned
+
+User-specific socket rooms
+
+📊 Dashboard
+
+Tasks assigned to user
+
+Tasks created by user
+
+Overdue tasks
+
+Filter by status & priority
+
+Sort by due date
+
+🎨 UX & UI
+
+Fully responsive (mobile + desktop)
+
+Tailwind CSS
+
+Loading & error states
+
+Clean form validation messages
